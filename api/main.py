@@ -3,6 +3,7 @@ import pandas as pd
 
 from api.schemas import TrafficInput
 from api.model_loader import load_model
+from utils.helpers import prepare_input, validate_input, format_prediction
 
 app = FastAPI()
 
@@ -17,7 +18,12 @@ def home():
 @app.post("/predict")
 def predict(data: TrafficInput):
 
-    input_df = pd.DataFrame([data.dict()])
+    input_data = data.dict()
+
+    validate_input(input_data)
+
+    input_df = prepare_input(input_data)
+
     prediction = model.predict(input_df)
 
-    return {"predicted_traffic": float(prediction[0])}
+    return format_prediction(prediction[0])
