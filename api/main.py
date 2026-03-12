@@ -1,9 +1,12 @@
 from fastapi import FastAPI
 import pandas as pd
 
+
 from api.schemas import TrafficInput
 from api.model_loader import load_model
 from utils.helpers import prepare_input, validate_input, format_prediction
+
+from utils.db import insert_prediction
 
 app = FastAPI()
 
@@ -24,6 +27,8 @@ def predict(data: TrafficInput):
 
     input_df = prepare_input(input_data)
 
-    prediction = model.predict(input_df)
+    prediction = model.predict(input_df)[0]
 
-    return format_prediction(prediction[0])
+    insert_prediction(input_data, prediction)
+
+    return format_prediction(prediction)
